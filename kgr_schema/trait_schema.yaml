@@ -1,0 +1,19 @@
+# This YAML schema defines the structure for a class entity.
+# It includes the class name, description, properties, and methods.
+# Each property and method has its own name, type, and description.
+# Reference: https://json-schema.org/understanding-json-schema/
+trait:
+  name:
+    type: string
+  description:
+    type: string
+  satisfies:
+    type: array
+    items:
+      type: string
+
+example:
+  name: deployable
+  description: "Trait for a deployable component"
+  satisfies:
+    - deployed

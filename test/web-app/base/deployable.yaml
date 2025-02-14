@@ -1,0 +1,5 @@
+name: deployable
+kind: trait
+description: "Trait for a deployable component"
+satisfies:
+  - deployed

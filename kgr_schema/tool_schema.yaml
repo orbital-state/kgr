@@ -1,0 +1,61 @@
+# This YAML schema defines the structure for a tool entity.
+# It includes the tool name, description, metadata, and a list of actions.
+# Each action contains a name, description, script, and parameters.
+tool:
+  name:
+    type: string
+  description:
+    type: string
+  metadata:
+    type: object
+    properties:
+      location:
+        type: string
+      version:
+        type: string
+      labels:
+        type: object
+        properties:
+          app:
+            type: string
+        required:
+          - app
+    required:
+      - location
+      - version
+      - labels
+  actions:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        script:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - name
+        - description
+        - script
+
+example:
+  name: deployment_tool
+  description: "Tool used for deploying web applications"
+  metadata:
+    location: "path:/usr/bin/deployment_tool"
+    version: "2.1.0"
+    labels:
+      app: "web_app"
+  actions:
+    - name: deploy
+      description: "Deploy the web app using deployment_tool"
+      script: "deployment_script.sh"
+      parameters:
+        environment: production
+        version: "1.0.0"

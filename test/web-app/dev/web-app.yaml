@@ -1,0 +1,38 @@
+name: web-app
+kind: component
+extends:
+  # properties are inherited from base
+  base: "kgr:file:../base/web-component.yaml"
+  # alternative syntax
+  # base: "kgr:id:component/web-component@environment=dev:namespace=web-app"
+  # overlays:
+  #   # properties are merged with base
+  #   - "kgr:id:component/web-app@kind=component"
+properties:
+  image: "nginx:latest"
+  replicas: "3"
+implements:
+  - deployable
+requires: 
+  deployed:
+    - component/database
+    - component/kubernetes
+satisfies:
+  deployed:
+    - action: plan
+      tool: terraform
+      # parameters:
+    - action: apply
+      tool: terraform
+      # parameters:
+  tested:
+    - action: request
+      tool: http
+      parameters:
+        url: "http://localhost:8080"
+        method: "GET"
+        status: 200
+        headers:
+          - name: "Content-Type"
+            value: "text/html"
+        body: "Hello, World!"

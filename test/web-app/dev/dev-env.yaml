@@ -1,0 +1,7 @@
+name: web-component
+kind: component
+properties:
+  environment: dev
+  namespace: web-app
+  labels:
+    app: web-app

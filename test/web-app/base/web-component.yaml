@@ -1,0 +1,6 @@
+name: web-base
+kind: component
+properties:
+  namespace: web-app
+  labels:
+    app: web-app

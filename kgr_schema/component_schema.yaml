@@ -1,0 +1,197 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Component Schema
+type: object
+properties:
+  name:
+    type: string
+  kind:
+    type: string
+  extends:
+    type: string
+  metadata:
+    type: object
+    properties:
+      namespace:
+        type: string
+      environment:
+        type: string
+      labels:
+        type: object
+        properties:
+          app:
+            type: string
+        required:
+          - app
+    required:
+      - namespace
+      - environment
+      - labels
+  requires:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        state:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - state
+  implements:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        tool:
+          type: string
+        parameters:
+          type: object
+          properties:
+            path:
+              type: array
+              items:
+                type: string
+            image:
+              type: string
+            replicas:
+              type: string
+            environment:
+              type: string
+            version:
+              type: string
+          additionalProperties: true
+        pass:
+          type: string
+      required:
+        - name
+        - tool
+        - parameters
+        - pass
+  satisfies:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        tool:
+          type: string
+        parameters:
+          type: object
+          properties:
+            url:
+              type: string
+            method:
+              type: string
+            status:
+              type: integer
+            body:
+              type: string
+            headers:
+              type: array
+              items:
+                type: object
+                properties:
+                  key:
+                    type: string
+                  value:
+                    type: string
+                required:
+                  - key
+                  - value
+          required:
+            - url
+            - method
+            - status
+            - body
+        pass:
+          type: string
+      required:
+        - name
+        - tool
+        - parameters
+        - pass
+  supports:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        fails:
+          type: string
+      required:
+        - name
+        - fails
+required:
+  - name
+  - kind
+  - extends
+  - metadata
+  - requires
+  - implements
+  - satisfies
+  - supports
+additionalProperties: false
+
+# can be referenced as: 
+#   <environment>/<namespace>/<kind>:<name>
+#   which is "dev/web/component:web-app"
+name: web-app
+kind: component
+extends: base/component/web-app
+metadata:
+  namespace: web
+  environment: dev
+  labels:
+    app: web-app
+requires: 
+  # Upstream components
+  - name: component/database
+    state:
+      - created
+      - deployed
+  - name: component/kubernetes
+    state:
+      - created
+      - initialized
+      - ready
+implements:
+  # Workflow as list of actions in fixed order
+  - name: create
+    tool: terraform
+    parameters:
+      path:  # always relative to the component path
+        - "../terraform/app/main.tf"
+      image: "nginx:latest"
+      replicas: "3"
+    pass: created
+  - name: deploy
+    tool: helm
+    parameters:
+      environment: production
+      version: "1.0.0"
+    pass: deployed
+satisfies:
+  # Tests as list of actions in parallel or in any order
+  - name: test
+    tool: http
+    parameters:
+      url: "http://localhost:8080"
+      method: GET
+      status: 200
+      body: "OK"
+      headers:
+        - key: Content-Type
+          value: application/json
+    pass: tested
+supports:
+  # Downstream components
+  - name: component/web-ui
+    fails: broken_api
+# TODO: add recovery strategy "rollback" or "recreate", "redeploy" or "retest" or "swap to another version deep in history"
