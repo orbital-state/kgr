@@ -1,0 +1,17 @@
+name: terraform
+kind: tool
+metadata:
+  location: local
+  version: 1.0.0 # TODO can be required version constraint
+  labels:
+    app: terraform
+path: /usr/bin/terraform
+map_parameters:
+  - name: image
+    key: image
+  - name: replicas
+    key: replicas
+  - name: environment
+    key: environment
+  - name: version
+    key: version

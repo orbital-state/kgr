@@ -1,0 +1,16 @@
+name: kubernetes-cluster
+kind: component
+metadata:
+  namespace: k8s
+  environment: dev
+  labels:
+    app: k8s-cluster
+requires:
+  - name: component/subnet
+    state:
+      - created
+      - ready
+      - peered
+supports:
+  - name: component/web-app
+  - name: component/web-ui
