@@ -3,7 +3,7 @@
 # - all paths are relative to current file
 # - all first level keys except name and kind like {meta, extends, expects}.. 
 #   are merged
-# - all actions are strictly ordered, only claims are parallelized
+# - all asserts are strictly ordered, only claims are parallelized
 #
 #
 # About variables in kgr:
@@ -18,11 +18,9 @@ meta:
   version: "1.0.0" # Semantic version
   labels: 
     app: web-app
-  tools: # todo: move to base
-    terraform:
-      path: ''file:./terraform/' 
+
 extends:
-  base: 'file:../base/terraform.kgr.yaml'
+  base: 'file:../base/app.kgr.yaml'
 
 expects:
   variables:
@@ -33,6 +31,7 @@ expects:
       default: latest
       required: false
     replicas: 3
+    terraform_path: 'file:./terraform/' 
   secrets:
     db_password: {}
 
@@ -53,10 +52,10 @@ satisfies:
           equals: bar  # {equals, not_equals, matches_regex}
         - id: foo
           equals: baz
-    - action: terraform.plan
-    - action: terraform.apply
+    - assert: terraform.plan
+    - assert: terraform.apply
   tested:
-    - action: http.request
+    - assert: http.request
       parameters:
         url: "http://localhost:8080"
         method: "GET"
@@ -64,3 +63,4 @@ satisfies:
         headers:
           Content-Type: "text/html"
         body: "Hello, World!"
+# Implement rollout, swappable and rollback strategy
