@@ -52,7 +52,7 @@ satisfies:
           equals: bar  # {equals, not_equals, matches_regex}
         - id: foo
           equals: baz
-    - assert: terraform.plan
+    - assert: terraform.plan  # variables and secrets are passed to tools
     - assert: terraform.apply
   tested:
     - assert: http.request
