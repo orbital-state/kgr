@@ -1,0 +1,5 @@
+---
+name: deployable
+kind: Claim
+satisfies:
+  - deployed

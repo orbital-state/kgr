@@ -1,0 +1,66 @@
+---
+# Main ideas:
+# - all paths are relative to current file
+# - all first level keys except name and kind like {meta, extends, expects}.. 
+#   are merged
+# - all actions are strictly ordered, only claims are parallelized
+#
+#
+# About variables in kgr:
+# - each variable is looked up in ENV via upper case key map, 
+#   i.e. foo can be overwritten by ENV var FOO if defined
+# - all YAML data types are converted to strings, i.e. bool and 
+#   int will be str
+# - vars cannot be empty unless marked as 'empty:true', but required:true is equivalent to not_empty
+name: web-app
+kind: Application # {Application, Resource}
+meta:
+  version: "1.0.0" # Semantic version
+  labels: 
+    app: web-app
+  tools: # todo: move to base
+    terraform:
+      path: ''file:./terraform/' 
+extends:
+  base: 'file:../base/terraform.kgr.yaml'
+
+expects:
+  variables:
+    foo: bar
+    image_name: 
+      default: nginx
+    image_tag:
+      default: latest
+      required: false
+    replicas: 3
+  secrets:
+    db_password: {}
+
+requires:
+  deployed:
+    resources:
+      - kubernetes
+      - database
+
+implements:
+  - deployable
+
+satisfies:
+  deployed:
+    - if: any  # {any, all} acts as OR and AND
+      is_true:  # {is_true, is_false}
+        - id: foo   # {id, expression} where expression JSONPath-style expression
+          equals: bar  # {equals, not_equals, matches_regex}
+        - id: foo
+          equals: baz
+    - action: terraform.plan
+    - action: terraform.apply
+  tested:
+    - action: http.request
+      parameters:
+        url: "http://localhost:8080"
+        method: "GET"
+        status: 200
+        headers:
+          Content-Type: "text/html"
+        body: "Hello, World!"
