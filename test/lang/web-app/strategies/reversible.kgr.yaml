@@ -1,0 +1,9 @@
+---
+# What risks can we avoid or mitigate? Do we have a backup plan?
+name: reversible
+kind: Strategy
+failure_recovery:
+  on_failure:
+    - fix_forward
+    - reverse
+    - fallback.previous_version # see version_plan or deploy_roadmap

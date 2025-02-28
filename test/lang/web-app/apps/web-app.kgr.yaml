@@ -54,6 +54,8 @@ satisfies:
           equals: baz
     - assert: terraform.plan  # variables and secrets are passed to tools
     - assert: terraform.apply
+      on_failure: fallback.previous_version
+
   tested:
     - assert: http.request
       parameters:
@@ -63,4 +65,34 @@ satisfies:
         headers:
           Content-Type: "text/html"
         body: "Hello, World!"
-# Implement rollout, swappable and rollback strategy
+
+# --- VERSION PLAN & DEPLOYMENT STRATEGY ---
+version_plan:
+  upgrade:
+    strategy: blue-green # {rolling, blue-green, canary}
+    stages:
+      - assert: traffic.shift "20%"
+      - assert: terraform.apply
+      - assert: traffic.shift "100%"
+    rollback:
+      - action: revert.previous_version
+      - assert: terraform.destroy
+
+  rollback:
+    conditions:
+      - if: any
+        failed_asserts: 
+          - terraform.apply
+          - http.request
+    actions:
+      - revert.previous_version
+      - notify: "Deployment rollback triggered"
+
+  post-deployment:
+    validation:
+      - assert: http.request
+      - assert: db.migration_success
+    cleanup:
+      - action: remove_temp_files
+
+# what about API deprecation plan
