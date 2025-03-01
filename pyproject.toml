@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "kgr"
+name = "kangaroo"
 version = "0.1.0"
 description = "KanGaRoo is an IaC DSL: declarative, agnostic, logical and distributed"
 authors = ["Yauhen Yakimovich <yauhen.yakimovich.mail@gmail.com>"]
