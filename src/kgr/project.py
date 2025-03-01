@@ -1,11 +1,37 @@
 import os
 import yaml
+import toml
 from pathlib import Path
+
 
 class KangarooProject:
     def __init__(self, project_path):
         self.project_path = Path(project_path)
+        self.name = self.project_path.name
         self.manifests = []
+
+    def kgr_folder_path(self):
+        return self._location_path / '.kgr'
+    
+    def load_config(self):
+        """Load project configuration."""
+        if self._config:
+            return self._config
+        config_path = self.kgr_folder_path / 'config.toml'
+        assert config_path.exists(), f"Project configuration not found at: {config_path}"
+        # Load configuration from toml file
+        self._config = toml.load(config_path)
+        return self._config
+
+    def initialize(self) -> bool:
+        """Populate `.kgr` folder if it does not exists."""
+        if self.kgr_folder_path().exists():
+            print(f"Project '{self.name}' already initialized.")
+            return False
+        # Create '.kgr' folder if it does not exist
+        print(f"Initializing project '{self.name}'...")
+        os.makedirs(self.kgr_folder_path())
+        return True
 
     def load_manifests(self):
         kgr_folder = self.project_path / ".kgr"
@@ -29,11 +55,3 @@ class KangarooProject:
         # Placeholder for schema validation logic
         # This should use a schema validation library like jsonschema
         pass
-
-# Example usage:
-# project = KangarooProject("/path/to/project")
-# project.load_manifests()
-# lint_errors = project.lint_manifests()
-# if lint_errors:
-#     print("Lint errors found:", lint_errors)
-# project.validate_schema()
