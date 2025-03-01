@@ -3,13 +3,13 @@ name: reversible
 kind: StateStrategy
 provides:
   state:
-    borrow:
+    borrowed:
       description: "Borrow state for modification"
-    release:
+    released:
       description: "State is returned by borrower"
-    revert:
+    reverted:
       description: "Can fully or partially revert to previous state"
-    update:
+    updated:
       description: "Mutate or do changes to state"
     failed:
       description: "Return true on any error"
@@ -21,11 +21,11 @@ reacts:
     is: false
     with_event: on_failure
 satisfies:
-  expected: 
-    - assert: state.borrow
   recovered: 
-    - assert: state.revert
+    - assert: state.borrowed
+    - assert: state.reverted
+    - assert: state.released
   panicked:
     - if: state.failed
     - assert: notification.alert
-      finally: state.release
+    - assert: state.released
