@@ -33,21 +33,21 @@ class ComponentSchema(BaseSchema):
                 "valueschema": { 
                     "type": "dict",
                     "schema": {
-                        "resources": {"type": "list", "schema": {"type": "str"}, "required": False},
-                        "applications": {"type": "list", "schema": {"type": "str"}, "required": False},
+                        "resources": {"type": "list", "value": {"type": "str"}, "required": False},
+                        "applications": {"type": "list", "value": {"type": "str"}, "required": False},
                     },
                 },
                 "required": False,
             },
-            "implements": {"type": "list", "schema": {"type": "str"}, "required": False},
+            "implements": {"type": "list", "value": {"type": "str"}, "required": False},
             "satisfies": {
                 "type": "dict",
                 "key": {"type": "str", "regex": re.compile(r"^[a-zA-Z0-9_]+$")},
                 "valueschema": { 
                     "type": "dict",
                     "schema": {
-                        "resources": {"type": "list", "schema": {"type": "str"}, "required": False},
-                        "applications": {"type": "list", "schema": {"type": "str"}, "required": False},
+                        "resources": {"type": "list", "value": {"type": "str"}, "required": False},
+                        "applications": {"type": "list", "value": {"type": "str"}, "required": False},
                     },
                 },
                 "required": True,
@@ -66,7 +66,5 @@ class ComponentSchema(BaseSchema):
 
         # Validate with BaseSchema logic
         errors.extend(super().validate(data))
-
-        
 
         return errors

@@ -1,4 +1,3 @@
-
 import re
 
 
@@ -26,24 +25,54 @@ class BaseSchema:
     def _sub_validate(self, data, schema):
         """
         Recursively validate the input data against the schema.
-
         Returns a list of error messages. An empty list means validation passed.
         """
         errors = []
+        # mapping from string type names to actual Python types
+        type_mapping = {
+            "str": str,
+            "int": int,
+            "dict": dict,
+            "list": list,
+            "float": float,
+            "bool": bool,
+        }
         for field, field_type in schema.items():
             # validate the required fields
-            if field_type["required"] and field not in data and field != "any":
+            print(f"field: {field}, field_type: {field_type}")
+            if field_type.get("required") and field not in data:
                 errors.append(f"Missing '{field}' in manifest")
             # validate the allowed values
             if field in data and "allowed" in field_type:
                 if data[field] not in field_type["allowed"]:
                     errors.append(f"Invalid value '{field}': {data[field]}")
-            # validate the field types
-            if field in data and not isinstance(data[field], field_type["type"]):
-                errors.append(f"Invalid type for '{field}' in manifest")
-            # validate the nested fields
+            # validate the field types using the mapping
+            if field in data and field_type["type"] in type_mapping:
+                if not isinstance(data[field], type_mapping[field_type["type"]]):
+                    errors.append(f"Invalid type for '{field}' in manifest")
+            # validate the regex pattern
+            if field in data and "regex" in field_type:
+                if not field_type["regex"].match(data[field]):
+                    errors.append(f"Invalid value for '{field}' in manifest")
+            # validate case like: "implements": {"type": "list", "value": {"type": "str"}, "required": False},
+            if field in data and "value" in field_type:
+                for value in data[field]:
+                    if not isinstance(value, type_mapping[field_type["value"]["type"]]):
+                        errors.append(f"Invalid type for '{field}' in manifest")
+            # validate case like: "requires": {"type": "dict", "key": {"type": "str", "regex": re.compile(r"^[a-zA-Z0-9_]+$")},
+            if field in data and "key" in field_type:
+                for key in data[field]:
+                    if not isinstance(key, type_mapping[field_type["key"]["type"]]):
+                        errors.append(f"Invalid type for '{field}' in manifest")
+                    if not field_type["key"]["regex"].match(key):
+                        errors.append(f"Invalid value for '{field}' in manifest")
+            # validate the nested fields recursively for: "schema": { ... }
             if field in data and "schema" in field_type:
                 errors.extend(self._sub_validate(data[field], field_type["schema"]))
+            # validate the nested fields recursively for: "valueschema": { ... }
+            if field in data and "valueschema" in field_type:
+                for key, value in data[field].items():
+                    errors.extend(self._sub_validate(value, field_type["valueschema"]["schema"]))
         return errors
 
     def validate(self, data: dict) -> list:
@@ -53,28 +82,8 @@ class BaseSchema:
         """
         errors = []
 
-        # validate the required fields
-        for field, field_type in self._schema.items():
-            if field_type["required"] and field not in data:
-                errors.append(f"Field '{field}' is required")
-        
-        # validate the field types
-        for field, field_type in self._schema.items():
-            if field in data:
-                if field_type["type"] == "str" and not isinstance(data[field], str):
-                    errors.append(f"Field '{field}' must be a string")
-                if field_type["type"] == "dict" and not isinstance(data[field], dict):
-                    errors.append(f"Field '{field}' must be a dictionary")
-                if field_type["type"] == "list" and not isinstance(data[field], list):
-                    errors.append(f"Field '{field}' must be a list")
-        
-        # validate the allowed values
-        for field, field_type in self._schema.items():
-            if field in data and "allowed" in field_type:
-                if data[field] not in field_type["allowed"]:
-                    errors.append(f"Invalid value for '{field}'")
-        
-
+        # recursively validate the input data
+        errors.extend(self._sub_validate(data, self._schema))
 
         # validate the version field in meta
         if "meta" in data and "version" in data["meta"]:
