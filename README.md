@@ -1,2 +1,2 @@
-# kguru
-kguru (:KenGuRu:) is an agnostic, declarative and distributed Infrastructure as Code (IaC) manager
+# kgr
+kgr (:KanGaRoo:) is declarative agnostic, logical and distributed Infrastructure as Code (IaC) manager and programming language.
