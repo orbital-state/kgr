@@ -5,9 +5,11 @@ from pathlib import Path
 
 
 class KangarooProject:
-    def __init__(self, project_path):
-        self.project_path = Path(project_path)
-        self.name = self.project_path.name
+    def __init__(self, location_path):
+        self._location_path = Path(location_path)
+        assert self._location_path.exists()
+        self.name = self._location_path.name
+        self._config = None
         self.manifests = []
 
     def kgr_folder_path(self):
@@ -34,11 +36,10 @@ class KangarooProject:
         return True
 
     def load_manifests(self):
-        kgr_folder = self.project_path / ".kgr"
-        if not kgr_folder.exists():
-            raise FileNotFoundError(f"{kgr_folder} does not exist")
+        if not self.kgr_folder_path.exists():
+            raise FileNotFoundError(f"{self.kgr_folder_path} does not exist")
         
-        for yaml_file in kgr_folder.glob("*.kgr.yaml"):
+        for yaml_file in self.kgr_folder_path.glob("*.kgr.yaml"):
             with open(yaml_file, 'r') as file:
                 manifest = yaml.safe_load(file)
                 self.manifests.append(manifest)
