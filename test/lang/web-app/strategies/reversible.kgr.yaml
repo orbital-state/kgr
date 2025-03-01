@@ -1,6 +1,6 @@
 ---
 name: reversible
-kind: StateStrategy
+kind: EventStrategy
 provides:
   state:
     borrowed:
@@ -13,8 +13,8 @@ provides:
       description: "Mutate or do changes to state"
     failed:
       description: "Return true on any error"
-promises: 
-  - reverse
+promises:
+  - reverse # will receive 'assert' rule as part of context
 # For each rule 'assert' hook event 'on_failure' and provide 'state' context into each action
 reacts:
   - rule: assert
