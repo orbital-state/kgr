@@ -30,6 +30,7 @@ requires:
       - database
 
 implements:
+  - reversible
   - deployable
 
 satisfies:
@@ -42,11 +43,7 @@ satisfies:
           equals: baz
     - assert: terraform.plan  # variables and secrets are passed to tools
     - assert: terraform.apply
-      on_failure:
-        - expect: state.borrow
-        - recover: state.revert
-        - panic: notification.alert
-        - finally: state.release
+      on_failure: reverse
 
   tested:
     - assert: http.request
