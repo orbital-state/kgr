@@ -1,7 +1,11 @@
 
+import re
+
+
 _allowed_kinds = ["Resource", "Application", "Component", "Service", "Infrastructure", "Environment"]
 
-class SchemaBase:
+
+class BaseSchema:
 
     def __init__(self, kind):
         self.kind = kind

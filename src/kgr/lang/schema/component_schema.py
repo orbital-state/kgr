@@ -1,4 +1,4 @@
-from .base import BaseSchema
+from .base_schema import BaseSchema
 import re
 
 
