@@ -5,6 +5,17 @@ from .project import KangarooProject
 
 app = typer.Typer()
 
+def _get_version():
+    try:
+        from importlib import metadata
+        return metadata.version("kangaroo")
+    except metadata.PackageNotFoundError:
+        return "0.1.0" # default version
+
+@app.command()
+def version():
+    pkg_version = _get_version()
+    typer.echo(f"Version: {pkg_version}")
 
 def _get_project_path(project_path: str):
     if not project_path:
@@ -28,4 +39,9 @@ def run(project_path: str = '', **kwargs):
     project.run(**kwargs)
 
 def main():
+    pkg_version = _get_version()
+    typer.echo(f"KanGaRoo CLI ver.: {pkg_version}")
     app()
+
+if __name__ == "__main__":
+    main()
