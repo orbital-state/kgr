@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "kgr"
+version = "0.1.0"
+description = "KanGaRoo is an IaC DSL: declarative, agnostic, logical and distributed"
+authors = ["Yauhen Yakimovich <yauhen.yakimovich.mail@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/orbital-state/kgr"
+packages = [{include = "kgr", from="src"}]
+
+[tool.poetry.scripts]
+kgr = "kgr.cli:main"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+typer = "^0.12.3"
+toml = "^0.10.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
