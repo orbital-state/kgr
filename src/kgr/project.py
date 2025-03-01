@@ -3,6 +3,8 @@ import yaml
 import toml
 from pathlib import Path
 
+from kgr.lang.schema.schema_factory import SchemaFactory
+
 
 class KangarooProject:
     def __init__(self, location_path):
@@ -50,7 +52,11 @@ class KangarooProject:
         for manifest in self.manifests:
             if 'kind' not in manifest:
                 errors.append("Missing 'kind' in manifest")
-            # Add more linting rules as needed
+                # Break early if 'kind' is missing
+                return errors
+            # Finally, hit lint rules with schema validation
+            schema = SchemaFactory.create_schema(manifest)
+            errors.extend(schema.validate(manifest))
         return errors
 
     def validate_schema(self):
