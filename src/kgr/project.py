@@ -12,6 +12,7 @@ class KangarooProject:
         self._config = None
         self.manifests = []
 
+    @property
     def kgr_folder_path(self):
         return self._location_path / '.kgr'
     
@@ -27,22 +28,22 @@ class KangarooProject:
 
     def initialize(self) -> bool:
         """Populate `.kgr` folder if it does not exists."""
-        if self.kgr_folder_path().exists():
+        if self.kgr_folder_path.exists():
             print(f"Project '{self.name}' already initialized.")
             return False
         # Create '.kgr' folder if it does not exist
         print(f"Initializing project '{self.name}'...")
-        os.makedirs(self.kgr_folder_path())
+        os.makedirs(self.kgr_folder_path)
         return True
 
     def load_manifests(self):
         if not self.kgr_folder_path.exists():
             raise FileNotFoundError(f"{self.kgr_folder_path} does not exist")
-        
         for yaml_file in self.kgr_folder_path.glob("*.kgr.yaml"):
             with open(yaml_file, 'r') as file:
                 manifest = yaml.safe_load(file)
                 self.manifests.append(manifest)
+        return self.manifests
 
     def lint_manifests(self):
         errors = []
@@ -55,4 +56,4 @@ class KangarooProject:
     def validate_schema(self):
         # Placeholder for schema validation logic
         # This should use a schema validation library like jsonschema
-        pass
+        return []
