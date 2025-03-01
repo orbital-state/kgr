@@ -1,9 +1,18 @@
 ---
-# What risks can we avoid or mitigate? Do we have a backup plan?
 name: reversible
-kind: Strategy
-failure_recovery:
-  on_failure:
-    - fix_forward
-    - reverse
-    - fallback.previous_version # see version_plan or deploy_roadmap
+kind: StateStrategy
+promises:
+  state:
+    borrow:
+      description: "Borrow state for modification"
+    release:
+      description: "State is returned by borrower"
+    revert:
+      description: "Can fully or partially revert to previous state"
+    update:
+      description: "Mutate or do changes to state"
+# For each rule 'assert' hook event 'on_failure' and provide 'state' context into each action
+reacts:
+  - rule: assert
+    is: false
+    with_event: on_failure
