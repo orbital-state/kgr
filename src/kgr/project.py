@@ -44,19 +44,22 @@ class KangarooProject:
         for yaml_file in self.kgr_folder_path.glob("*.kgr.yaml"):
             with open(yaml_file, 'r') as file:
                 manifest = yaml.safe_load(file)
-                self.manifests.append(manifest)
+                manifest_info = {
+                    "kind": manifest.get("kind"),
+                    "filepath": str(yaml_file),
+                    "data": manifest
+                }
+                self.manifests.append(manifest_info)
         return self.manifests
 
     def lint_manifests(self):
         errors = []
-        for manifest in self.manifests:
-            if 'kind' not in manifest:
-                errors.append("Missing 'kind' in manifest")
-                # Break early if 'kind' is missing
+        for manifest_info in self.manifests:
+            if not manifest_info.get('kind'):
+                errors.append(f"Missing 'kind' in manifest at {manifest_info.get('filepath')}")
                 return errors
-            # Finally, hit lint rules with schema validation
-            schema = SchemaFactory.create_schema(manifest)
-            errors.extend(schema.validate(manifest))
+            schema = SchemaFactory.create_schema(manifest_info["data"])
+            errors.extend(schema.validate(manifest_info["data"]))
         return errors
 
     def validate_schema(self):

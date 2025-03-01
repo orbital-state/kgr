@@ -20,7 +20,7 @@ def test_load_manifests(tmp_path):
     manifests = project.load_manifests()
     assert len(manifests) == 1
     assert manifests[0]["kind"] == "example"
-    assert manifests[0]["spec"]["foo"] == "bar"
+    assert manifests[0]["data"]["spec"]["foo"] == "bar"
 
 def test_lint_manifests(tmp_path):
     project = KangarooProject(tmp_path)
