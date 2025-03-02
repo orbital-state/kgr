@@ -55,7 +55,7 @@ class BaseSchema:
                 if not field_type["regex"].match(data[field]):
                     errors.append(f"Invalid value for '{field}' in manifest")
             # validate case like: "implements": {"type": "list", "value": {"type": "str"}, "required": False},
-            if field in data and "value" in field_type:
+            if field in data and field_type.get("type") == "list" and "value" in field_type:
                 for value in data[field]:
                     if not isinstance(value, type_mapping[field_type["value"]["type"]]):
                         errors.append(f"Invalid type for '{field}' in manifest")
@@ -69,10 +69,17 @@ class BaseSchema:
             # validate the nested fields recursively for: "schema": { ... }
             if field in data and "schema" in field_type:
                 errors.extend(self._sub_validate(data[field], field_type["schema"]))
-            # validate the nested fields recursively for: "valueschema": { ... }
-            if field in data and "valueschema" in field_type:
+            # validate the nested fields recursively for: "value": { ... }
+            if field in data and field_type.get("type") == "dict" and "value" in field_type:
                 for key, value in data[field].items():
-                    errors.extend(self._sub_validate(value, field_type["valueschema"]["schema"]))
+                    if field_type["value"].get("type"):
+                        if not isinstance(value, type_mapping[field_type["value"]["type"]]):
+                            errors.append(f"Invalid type for '{field}' in manifest")
+                    if field_type["value"].get("regex"):
+                        if not field_type["value"]["regex"].match(value):
+                            errors.append(f"Invalid value for '{field}' in manifest")
+                    if field_type["value"].get("schema"):
+                        errors.extend(self._sub_validate(value, field_type["value"]["schema"]))
         return errors
 
     def validate(self, data: dict) -> list:
@@ -90,6 +97,10 @@ class BaseSchema:
             if not self.validate_semver(data["meta"]["version"]):
                 errors.append("Invalid semantic version")
         
+        # finally, name of the schema should match the kind
+        if data.get("kind") != self.kind:
+            errors.append(f"Invalid 'kind': expected '{self.kind}'.")
+
         return errors
 
     def validate_semver(self, version: str) -> bool:

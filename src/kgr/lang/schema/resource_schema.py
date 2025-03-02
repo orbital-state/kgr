@@ -2,7 +2,7 @@ from .component_schema import ComponentSchema
 
 class ResourceSchema(ComponentSchema):
     def __init__(self):
-        super().__init__()
+        super().__init__("Resource")
         # Override: AppSchema should only allow 'Resource' as the kind
         self._schema["kind"]["allowed"] = ["Resource"]
 

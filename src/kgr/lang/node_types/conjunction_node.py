@@ -1,20 +1,28 @@
 from ..error import Error
-from ..result import Result
+from ..result import Result, Ok, Failure
 
 
-class ConjuctionType:
+class ConjunctionNode:
+    """
+    A node in a conjunction tree.
+    """
+
     def __init__(self, rules: list):
-        self.rules = rules
+        self._rules = rules
+
+    @property
+    def rules(self):
+        return self._rules
 
     def __call__(self, *args, **kwds) -> Result:
         errors = []
-        for idx, rule in enumerate(self.rules):
+        for rule in enumerate(self.rules):
             res: Result = rule(*args, **kwds)
-            if not res.success:
+            if res.failed:
                 errors.append(res.error)
         if errors:
             combined_error = Error("Conjunction failed", __file__)
             for err in errors:
                 combined_error.add_child(err)
-            return Result(value=False, error=combined_error)
-        return Result(value=True)
+            return Failure(combined_error)
+        return Ok()

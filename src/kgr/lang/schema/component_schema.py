@@ -3,16 +3,15 @@ import re
 
 
 class ComponentSchema(BaseSchema):
-    def __init__(self):
-        super().__init__("component")
+    def __init__(self, kind: str):
+        super().__init__(kind) # kind is required as component is base class
         self._schema.update({
             "kind": {
-                "type": "str", 
-                "required": True, 
+                "type": "str",
+                "required": True,
                 # restrict inheritance to these kinds
                 # TODO: improve error message
                 "allowed": ["Component", "Resource", "Application"],
-                "kgr_type": "ComponentType",
             },
             "extends": {
                 "type": "dict",
@@ -20,7 +19,6 @@ class ComponentSchema(BaseSchema):
                     "base": {"type": "str", "required": True},
                     "overlays": {"type": "list", "schema": {"type": "str"}, "required": False},
                 },
-                "kgr_type": "ConstraintType",
             },
             "expects": {
                 "type": "dict",
@@ -34,39 +32,39 @@ class ComponentSchema(BaseSchema):
                         "required": False
                     },
                 },
-                "kgr_type": "ConstraintType",
             },
             "requires": {
                 "type": "dict",
                 "key": {"type": "str", "regex": re.compile(r"^[a-zA-Z0-9_]+$")},
-                "valueschema": { 
+                "value": { 
                     "type": "dict",
+                    # TODO: test if this gets validated
                     "schema": {
                         "resources": {"type": "list", "value": {"type": "str"}, "required": False},
                         "applications": {"type": "list", "value": {"type": "str"}, "required": False},
                     },
                 },
                 "required": False,
-                "kgr_type": "ConstraintType",
             },
             "implements": {
                 "type": "list", 
-                "value": {"type": "str"}, 
+                "value": {"type": "str"},
                 "required": False,
-                "kgr_type": "ConstraintType",
             },
             "satisfies": {
                 "type": "dict",
-                "key": {"type": "str", "regex": re.compile(r"^[a-zA-Z0-9_]+$")},
-                "valueschema": { 
-                    "type": "dict",
-                    "schema": {
-                        "resources": {"type": "list", "value": {"type": "str"}, "required": False},
-                        "applications": {"type": "list", "value": {"type": "str"}, "required": False},
+                "key": {
+                    "type": "str", 
+                    "regex": re.compile(r"^[a-zA-Z0-9_]+$"),
+                },
+                "value": { 
+                    "type": "list",
+                    "value": {
+                        "type": "dict",
+                        "required": True,
                     },
                 },
                 "required": True,
-                "kgr_type": "ConstraintType",
             },
         })
 
