@@ -1,6 +1,6 @@
 # Language Definitions
 
-Kgr is a declarative IaC DSL, which aims on capturing a big picture when it comes to DevOps activities:
+Kgr is a declarative IaC DSL, which aims at capturing a big picture when it comes to DevOps activities:
 
 - What resources are provisioned
 - What apps are deployed that consume those resources

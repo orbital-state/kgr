@@ -11,7 +11,8 @@ class ComponentSchema(BaseSchema):
                 "required": True, 
                 # restrict inheritance to these kinds
                 # TODO: improve error message
-                "allowed": ["Component", "Resource", "Application"]
+                "allowed": ["Component", "Resource", "Application"],
+                "kgr_type": "ComponentType",
             },
             "extends": {
                 "type": "dict",
@@ -19,13 +20,21 @@ class ComponentSchema(BaseSchema):
                     "base": {"type": "str", "required": True},
                     "overlays": {"type": "list", "schema": {"type": "str"}, "required": False},
                 },
+                "kgr_type": "ConstraintType",
             },
             "expects": {
                 "type": "dict",
                 "schema": {
-                    "variables": {"type": "dict", "required": False},
-                    "secrets": {"type": "dict", "required": False},
+                    "variables": {
+                        "type": "dict", 
+                        "required": False,
+                    },
+                    "secrets": {
+                        "type": "dict", 
+                        "required": False
+                    },
                 },
+                "kgr_type": "ConstraintType",
             },
             "requires": {
                 "type": "dict",
@@ -38,8 +47,14 @@ class ComponentSchema(BaseSchema):
                     },
                 },
                 "required": False,
+                "kgr_type": "ConstraintType",
             },
-            "implements": {"type": "list", "value": {"type": "str"}, "required": False},
+            "implements": {
+                "type": "list", 
+                "value": {"type": "str"}, 
+                "required": False,
+                "kgr_type": "ConstraintType",
+            },
             "satisfies": {
                 "type": "dict",
                 "key": {"type": "str", "regex": re.compile(r"^[a-zA-Z0-9_]+$")},
@@ -51,6 +66,7 @@ class ComponentSchema(BaseSchema):
                     },
                 },
                 "required": True,
+                "kgr_type": "ConstraintType",
             },
         })
 
