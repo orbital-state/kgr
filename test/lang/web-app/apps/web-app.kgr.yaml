@@ -41,8 +41,9 @@ satisfies:
     #       equals: bar  # {equals, not_equals, matches_regex}
     #     - id: foo
     #       equals: baz
-    - assign: terraform.plan
+    - assign: terraform.plan 
       to: tf_desired_state
+    # we always assert: tf_desired_state.result.ok
     - assert: tf_desired_state.has_drift
     # variables and secrets are passed to tools
     - assert: tf_desired_state.applied
@@ -53,6 +54,7 @@ satisfies:
       parameters:
         url: "http://localhost:8080"
         method: "GET"
+      result:
         status: 200
         headers:
           Content-Type: "text/html"
