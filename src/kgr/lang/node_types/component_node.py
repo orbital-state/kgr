@@ -18,3 +18,11 @@ class ComponentNode(ConjunctionNode):
         self.implements = implements
         self.satisfies = satisfies
 
+    def __call__(self, *args, **kwds):
+        self.expects(*args, **kwds)
+        return super().__call__(
+            *args,
+            secrets=self.expects.secrets,
+            variables=self.expects.variables,
+            **kwds,
+        )

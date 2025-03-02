@@ -1,8 +1,9 @@
+from .rule_node import RuleNode
 from ..error import Error
 from ..result import Result, Ok, Failure
 
 
-class ConjunctionNode:
+class ConjunctionNode(RuleNode):
     """
     A node in a conjunction tree.
     """
