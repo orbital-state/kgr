@@ -1,0 +1,60 @@
+---
+name: web-app
+kind: Application # {Application, Resource}
+meta:
+  description: "Basic web app deployed in k8s"
+  version: "1.0.0" # Semantic version
+  labels: 
+    app: web-app
+
+extends:
+  base: 'file:../base/app.kgr.yaml'
+
+expects:
+  variables:
+    foo: bar
+    image_name: 
+      default: nginx
+    image_tag:
+      default: latest
+      required: false
+    replicas: 3
+    terraform_path: 'file:./terraform/' 
+  secrets:
+    db_password: {}
+
+requires:
+  deployed:
+    resources:
+      - kubernetes
+      - database
+
+implements:
+  - reversible
+  - deployable
+
+satisfies:
+  deployed:
+    # - if: any  # {any, all} acts as OR and AND
+    #   is_true:  # {is_true, is_false}
+    #     - id: foo   # {id, expression} where expression JSONPath-style expression
+    #       equals: bar  # {equals, not_equals, matches_regex}
+    #     - id: foo
+    #       equals: baz
+    - assign: terraform.plan
+      to: tf_desired_state
+    - assert: tf_desired_state.has_drift
+    # variables and secrets are passed to tools
+    - assert: tf_desired_state.applied
+      on_failure: tf_desired_state.reversed
+
+  tested:
+    - assert: http.request
+      parameters:
+        url: "http://localhost:8080"
+        method: "GET"
+        status: 200
+        headers:
+          Content-Type: "text/html"
+        body: "Hello, World!"
+
