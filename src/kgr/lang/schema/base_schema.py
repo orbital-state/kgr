@@ -54,11 +54,6 @@ class BaseSchema:
             if field in data and "regex" in field_type:
                 if not field_type["regex"].match(data[field]):
                     errors.append(f"Invalid value for '{field}' in manifest")
-            # validate case like: "implements": {"type": "list", "value": {"type": "str"}, "required": False},
-            if field in data and field_type.get("type") == "list" and "value" in field_type:
-                for value in data[field]:
-                    if not isinstance(value, type_mapping[field_type["value"]["type"]]):
-                        errors.append(f"Invalid type for '{field}' in manifest")
             # validate case like: "requires": {"type": "dict", "key": {"type": "str", "regex": re.compile(r"^[a-zA-Z0-9_]+$")},
             if field in data and "key" in field_type:
                 for key in data[field]:
@@ -70,6 +65,18 @@ class BaseSchema:
             if field in data and "schema" in field_type:
                 errors.extend(self._sub_validate(data[field], field_type["schema"]))
             # validate the nested fields recursively for: "value": { ... }
+            # ... values of a list
+            if field in data and field_type.get("type") == "list" and "value" in field_type:
+                for value in data[field]:
+                    if not isinstance(value, type_mapping[field_type["value"]["type"]]):
+                        errors.append(f"Invalid type for '{field}' in manifest")
+                    if field_type["value"].get("regex"):
+                        if not field_type["value"]["regex"].match(value):
+                            errors.append(f"Invalid value for '{field}' in manifest")
+                    if field_type["value"].get("schema"):
+                        errors.extend(self._sub_validate(value, field_type["value"]["schema"]))
+            # validate the nested fields recursively for: "value": { ... }
+            # ... values of a dict
             if field in data and field_type.get("type") == "dict" and "value" in field_type:
                 for key, value in data[field].items():
                     if field_type["value"].get("type"):
