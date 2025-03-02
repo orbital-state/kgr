@@ -23,7 +23,7 @@ class AstBuilder:
             return None
 
     def _build_component_node(self, data, schema):
-        assert schema.kind == 'application' or schema.kind == 'resource'
+        assert schema.kind == 'Application' or schema.kind == 'Resource'
         for field, field_type in schema.items():
             if field in data:
                 if field == "expects":
@@ -50,7 +50,7 @@ class AstBuilder:
 
     def from_data(self, yaml_data) -> AstNode:
         schema = SchemaFactory.get_schema(yaml_data)
-        if schema.kind == 'application' or schema.kind == 'resource':
+        if schema.kind == 'Application' or schema.kind == 'Resource':
             self.root = self._build_component_node(yaml_data, schema)
         self.root = self._build_node(yaml_data, schema)
         return self.root
