@@ -41,9 +41,10 @@ satisfies:
     #       equals: bar  # {equals, not_equals, matches_regex}
     #     - id: foo
     #       equals: baz
-    - assign: terraform.plan 
+    # below is equivalent to terraform.plan.result.value
+    # also we always implicitly check that: terraform.plan.result.ok
+    - assign: terraform.plan
       to: tf_desired_state
-    # we always assert: tf_desired_state.result.ok
     - assert: tf_desired_state.has_drift
     # variables and secrets are passed to tools
     - assert: tf_desired_state.applied
