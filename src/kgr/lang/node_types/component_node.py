@@ -6,7 +6,6 @@ class ComponentNode(ConjunctionNode):
     """
     def __init__(self, name: str, meta: dict, expects: dict, requires: dict, implements: list, satisfies: dict):
         super().__init__([
-            expects,
             requires,
             implements,
             satisfies,
@@ -18,11 +17,12 @@ class ComponentNode(ConjunctionNode):
         self.implements = implements
         self.satisfies = satisfies
 
-    def __call__(self, *args, **kwds):
-        self.expects(*args, **kwds)
-        return super().__call__(
-            *args,
-            secrets=self.expects.secrets,
-            variables=self.expects.variables,
-            **kwds,
-        )
+    def __call__(self, **kwds):
+        res = self.expects(**kwds)
+        if res.failed:
+            return res
+        kwds.update({
+            "variables": res.value.get("variables", {}),
+            "secrets": res.value.get("secrets", {}),
+        })
+        return super().__call__(**kwds)
