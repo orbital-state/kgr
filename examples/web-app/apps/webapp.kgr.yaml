@@ -35,21 +35,27 @@ implements:
 
 satisfies:
   deployed:
-    - if: any  # {any, all} acts as OR and AND
-      is_true:  # {is_true, is_false}
-        - id: foo   # {id, expression} where expression JSONPath-style expression
-          equals: bar  # {equals, not_equals, matches_regex}
-        - id: foo
-          equals: baz
-    - assert: terraform.plan  # variables and secrets are passed to tools
-    - assert: terraform.apply
-      on_failure: reverse
+    # - if: any  # {any, all} acts as OR and AND
+    #   is_true:  # {is_true, is_false}
+    #     - id: foo   # {id, expression} where expression JSONPath-style expression
+    #       equals: bar  # {equals, not_equals, matches_regex}
+    #     - id: foo
+    #       equals: baz
+    # below is equivalent to terraform.plan.result.value
+    # also we always implicitly check that: terraform.plan.result.ok
+    - assign: terraform.plan
+      to: tf_desired_state
+    - assert: tf_desired_state.has_drift
+    # variables and secrets are passed to tools
+    - assert: tf_desired_state.applied
+      on_failure: tf_desired_state.reversed
 
   tested:
     - assert: http.request
       parameters:
         url: "http://localhost:8080"
         method: "GET"
+      result:
         status: 200
         headers:
           Content-Type: "text/html"
