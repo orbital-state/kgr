@@ -93,3 +93,10 @@ About variables in kgr:
   int will be str
 
 - vars cannot be empty unless marked as 'empty:true', but required:true is equivalent to not_empty?
+
+- `<component> -> <constraint> -> <rule> -> <action>`
+
+ - actions are mostly sequential and imperative in the context of the rules. hence can accumulate state until final result is computed.
+ - rules are independent and isolated in a closure as in functional programming.
+ - constraints like `satisfies:` are conjunctions of many rules
+ - components provide a high level system overview.
